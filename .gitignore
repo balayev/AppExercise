@@ -27,3 +27,5 @@ Thumbs.db
 .vs/
 #Nuget packages folder
 packages/
+*.mdf
+*.ldf
