@@ -1,26 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Web;
 using System.Web.Http;
 using WebApplicationExercise.Core;
 using WebApplicationExercise.Models;
-using System.Data.Entity;
 
 namespace WebApplicationExercise.Controllers
 {
+    /// <summary>
+    /// Provides methods to work with orders.
+    /// </summary>
     [RoutePrefix("api/V1/orders")]
     public class OrdersController : ApiController
     {
         private readonly MainDataContext _dataContext;
         private readonly CustomerManager _customerManager;
 
+        /// <summary>
+        /// Constructor of OrdersController.
+        /// </summary>
+        /// <param name="dataContext">Database context.</param>
+        /// <param name="customerManager">Customer manager.</param>
         public OrdersController(MainDataContext dataContext, CustomerManager customerManager)
         {
             _dataContext = dataContext;
             _customerManager = customerManager;
         }
 
+        /// <summary>
+        /// Returns order with specified id.
+        /// </summary>
+        /// <param name="id">Id of order.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{id}")]
         public Order Order(Guid id)
@@ -28,6 +40,13 @@ namespace WebApplicationExercise.Controllers
             return _dataContext.Orders.Include(o => o.Products).Single(o => o.Id == id);
         }
 
+        /// <summary>
+        /// Returns list of products filtered by parameters.
+        /// </summary>
+        /// <param name="from">Filter from date.</param>
+        /// <param name="to">Filter to date.</param>
+        /// <param name="customerName">Cuctomer name.</param>
+        /// <returns>List of products filtered by parameters.</returns>
         [HttpGet]
         [Route]
         public IEnumerable<Order> Orders(DateTime? from = null, DateTime? to = null, string customerName = null)
@@ -47,6 +66,10 @@ namespace WebApplicationExercise.Controllers
             return orders.Where(o => _customerManager.IsCustomerVisible(o.Customer));
         }
 
+        /// <summary>
+        /// Saves the order.
+        /// </summary>
+        /// <param name="order">Order parameters.</param>
         [HttpPost]
         [Route]
         public void Post([FromBody]Order order)
@@ -55,21 +78,44 @@ namespace WebApplicationExercise.Controllers
             _dataContext.SaveChanges();
         }
 
+        /// <summary>
+        /// Updates or creates a new the order.
+        /// </summary>
+        /// <param name="order">Order parameters.</param>
         [HttpPut]
         [Route]
         public void Put([FromBody]Order order)
         {
+            var existingOrder = _dataContext.Orders.Where(x => x.Id == order.Id).FirstOrDefault();
 
-            _dataContext.Orders.Add(order);
+            if (existingOrder == null)
+            {
+                _dataContext.Orders.Add(order);
+            }
+            else
+            {
+                existingOrder.Products = order.Products;
+                existingOrder.Customer = order.Customer;
+                existingOrder.CreatedDate = order.CreatedDate;
+            }
+
             _dataContext.SaveChanges();
         }
 
+        /// <summary>
+        /// Removes the order by id.
+        /// </summary>
+        /// <param name="id">Id of order to remove.</param>
         [HttpDelete]
-        [Route]
-        public void Delete(Guid orderId)
+        [Route("{id}")]
+        public void Delete(Guid id)
         {
-            _dataContext.Orders.Where( o => o.Id.Equals(orderId));
-            _dataContext.SaveChanges();
+            var existingOrder = _dataContext.Orders.Where(x => x.Id == id).FirstOrDefault();
+            if (existingOrder != null)
+            {
+                _dataContext.Orders.Remove(existingOrder);
+                _dataContext.SaveChanges();
+            }
         }
 
         private IEnumerable<Order> FilterByCustomer(IEnumerable<Order> orders, string customerName)
