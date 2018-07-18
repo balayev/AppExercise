@@ -9,22 +9,28 @@ using System.Data.Entity;
 
 namespace WebApplicationExercise.Controllers
 {
-    [RoutePrefix("api/orders")]
+    [RoutePrefix("api/V1/orders")]
     public class OrdersController : ApiController
     {
-        private MainDataContext _dataContext = new MainDataContext();
-        private CustomerManager _customerManager = new CustomerManager();
+        private readonly MainDataContext _dataContext;
+        private readonly CustomerManager _customerManager;
 
-        [HttpGet]
-        [Route("getOrder")]
-        public Order GetOrder(Guid orderId)
+        public OrdersController(MainDataContext dataContext, CustomerManager customerManager)
         {
-            return _dataContext.Orders.Include(o => o.Products).Single(o => o.Id == orderId);
+            _dataContext = dataContext;
+            _customerManager = customerManager;
         }
 
         [HttpGet]
-        [Route("getOrders")]
-        public IEnumerable<Order> GetOrders(DateTime? from = null, DateTime? to = null, string customerName = null)
+        [Route("{id}")]
+        public Order Order(Guid id)
+        {
+            return _dataContext.Orders.Include(o => o.Products).Single(o => o.Id == id);
+        }
+
+        [HttpGet]
+        [Route]
+        public IEnumerable<Order> Orders(DateTime? from = null, DateTime? to = null, string customerName = null)
         {
             IEnumerable<Order> orders = _dataContext.Orders.Include(o => o.Products);
 
@@ -42,10 +48,27 @@ namespace WebApplicationExercise.Controllers
         }
 
         [HttpPost]
-        [Route("saveOrder")]
-        public void SaveOrder([FromBody]Order order)
+        [Route]
+        public void Post([FromBody]Order order)
         {
             _dataContext.Orders.Add(order);
+            _dataContext.SaveChanges();
+        }
+
+        [HttpPut]
+        [Route]
+        public void Put([FromBody]Order order)
+        {
+
+            _dataContext.Orders.Add(order);
+            _dataContext.SaveChanges();
+        }
+
+        [HttpDelete]
+        [Route]
+        public void Delete(Guid orderId)
+        {
+            _dataContext.Orders.Where( o => o.Id.Equals(orderId));
             _dataContext.SaveChanges();
         }
 
