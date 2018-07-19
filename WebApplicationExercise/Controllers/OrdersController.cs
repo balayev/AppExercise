@@ -14,15 +14,15 @@ namespace WebApplicationExercise.Controllers
     [RoutePrefix("api/V1/orders")]
     public class OrdersController : ApiController
     {
-        private readonly MainDataContext _dataContext;
-        private readonly CustomerManager _customerManager;
+        private readonly IMainDataContext _dataContext;
+        private readonly ICustomerManager _customerManager;
 
         /// <summary>
         /// Constructor of OrdersController.
         /// </summary>
         /// <param name="dataContext">Database context.</param>
         /// <param name="customerManager">Customer manager.</param>
-        public OrdersController(MainDataContext dataContext, CustomerManager customerManager)
+        public OrdersController(IMainDataContext dataContext, ICustomerManager customerManager)
         {
             _dataContext = dataContext;
             _customerManager = customerManager;
