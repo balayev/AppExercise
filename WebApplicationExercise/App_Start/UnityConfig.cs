@@ -5,6 +5,9 @@ using Unity.Mvc5;
 
 namespace WebApplicationExercise
 {
+    /// <summary>
+    /// Configuration of ASP.NET MVC.
+    /// </summary>
     public static class UnityConfig
     {
         public static void RegisterComponents()

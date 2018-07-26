@@ -236,6 +236,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
+    <Compile Include="Core\ActionLoggingHandler.cs" />
     <Compile Include="Core\CustomerManager.cs" />
     <Compile Include="Core\ICustomerManager.cs" />
     <Compile Include="Core\ILoggerProvider.cs" />
